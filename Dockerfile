@@ -14,20 +14,33 @@ ENV ANDROID_HOME "/sdk"
 ENV PATH "$PATH:${ANDROID_HOME}/tools"
 ENV DEBIAN_FRONTEND noninteractive
 
+ENV JAVA_HOME       /usr/lib/jvm/java-8-oracle
+ENV LANG            en_US.UTF-8
+ENV LC_ALL          en_US.UTF-8
+
 RUN apt-get -qq update && \
     apt-get install -qqy --no-install-recommends \
       bzip2 \
       curl \
       git-core \
       html2text \
-      openjdk-8-jdk \
       libc6-i386 \
       lib32stdc++6 \
       lib32gcc1 \
       lib32ncurses5 \
       lib32z1 \
       unzip \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+      locales \
+      locale-gen en_US.UTF-8 && \
+      apt-get dist-upgrade -y && \
+      apt-get --purge remove openjdk* && \
+      echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections && \
+      echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" > /etc/apt/sources.list.d/webupd8team-java-trusty.list && \
+      apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 && \
+      apt-get update && \
+      apt-get install -y --no-install-recommends oracle-java8-installer oracle-java8-set-default && \
+      apt-get clean all
+      && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN rm -f /etc/ssl/certs/java/cacerts; \
     /var/lib/dpkg/info/ca-certificates-java.postinst configure
