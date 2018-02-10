@@ -24,23 +24,14 @@ RUN apt-get -qq update && \
       curl \
       git-core \
       html2text \
+      openjdk-8-jdk \
       libc6-i386 \
       lib32stdc++6 \
       lib32gcc1 \
       lib32ncurses5 \
       lib32z1 \
       unzip \
-      locales \
-      locale-gen en_US.UTF-8 && \
-      apt-get dist-upgrade -y && \
-      apt-get --purge remove openjdk* && \
-      echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections && \
-      echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" > /etc/apt/sources.list.d/webupd8team-java-trusty.list && \
-      apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 && \
-      apt-get update && \
-      apt-get install -y --no-install-recommends oracle-java8-installer oracle-java8-set-default && \
-      apt-get clean all
-      && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN rm -f /etc/ssl/certs/java/cacerts; \
     /var/lib/dpkg/info/ca-certificates-java.postinst configure
@@ -52,6 +43,17 @@ RUN curl -s https://dl.google.com/android/repository/sdk-tools-linux-${VERSION_S
 RUN mkdir -p $ANDROID_HOME/licenses/ \
   && echo "8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e" > $ANDROID_HOME/licenses/android-sdk-license \
   && echo "84831b9409646a918e30573bab4c9c91346d8abd\n504667f4c0de7af1a06de9f4b1727b84351f2910" > $ANDROID_HOME/licenses/android-sdk-preview-license
+
+RUN apt-get purge -y openjdk-\*
+
+RUN apt-get -qq update && \
+    apt-get upgrade -y && \
+    apt-get install -y  software-properties-common && \
+    add-apt-repository ppa:webupd8team/java -y && \
+    apt-get update && \
+    echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections && \
+    apt-get install -y oracle-java8-installer && \
+    apt-get clean
 
 ADD packages.txt /sdk
 RUN mkdir -p /root/.android && \
