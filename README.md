@@ -4,7 +4,7 @@ This Docker image contains the Android SDK and most common packages necessary fo
 A `.gitlab-ci.yml` with caching of your project's dependencies would look like this:
 
 ```
-image: jangrewe/gitlab-ci-android
+image: drhetnet/ubuntu1604-android-java8
 
 stages:
 - build
